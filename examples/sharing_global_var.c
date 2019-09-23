@@ -30,7 +30,8 @@ int main(void)
 	{
 		if (childPID == 0) // child process
 		{
-			printf("\nChild process initial value :: localVar"
+			printf("\n---------------");
+			printf("\nChild process\ninitial value :: localVar"
 				" = %d, globalVar = %d", localVar,
 				globalVar);
 			localVar++;
@@ -39,42 +40,42 @@ int main(void)
 			int c = 500;
 			printf("\nChild process :: localVar = %d, "
 				"globalVar = %d", localVar, globalVar);
-			printf("\nAddress of malloced mem child = %p "
+			printf("\n\nAddress of malloced mem child = %p "
 				"and value is %d", p, *p);
 			printf("\n let's change the value pointed my malloc");
 
 			*p = 50;
-			printf("\nAddress of malloced mem child = %p "
+			printf("\n\nAddress of malloced mem child = %p "
 				"and value is %d", p, *p);
 
 			printf("\n lets change the value pointed by "
 				"malloc in child");
 
 			*p = 200;
-			printf("\nAddress of malloced mem child = %p "
+			printf("\n\nAddress of malloced mem child = %p "
 				"and value is %d\n\n\n", p, *p);
 		}// end child process
 		else // Parent process
 		{
-			printf("\nParent process initial value :: "
+			printf("\nParent process\ninitial value :: "
 				"localVar = %d, globalVar = %d",
 				localVar, globalVar);
 
 			localVar = 10;
 			globalVar = 20;
-			printf("\n Parent process :: localVar = %d, "
+			printf("\nParent process :: localVar = %d, "
 				"globalVar = %d", localVar, globalVar);
-			printf("\nAddress of malloced mem parent = %p "
+			printf("\n\nAddress of malloced mem parent = %p "
 				"and value is %d", p, *p);
 			            
 			*p = 100;
-            		printf("\n Address of malloced mem parent= %p "
+            		printf("\n\nAddress of malloced mem parent= %p "
                    		"and value is %d", p, *p);
             		printf("\n lets change the value pointed my"
                     		" malloc in child");
             
 			*p = 400;
-            		printf("\n Address of malloced mem child = %p"
+            		printf("\n\nAddress of malloced mem child = %p"
                    		" and value is %d \n", p, *p);
 		}// end parent process
 	}// end if fork successful
