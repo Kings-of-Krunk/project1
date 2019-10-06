@@ -71,3 +71,21 @@ int main()
 	 */
 
 }// end main
+
+void process1(){
+	for ( int i = 0; i < 1000; i++ )
+	    total = total + 1;
+}
+
+void process2(){
+	for( int i = 0; i < 1000; i++ )
+	    total = total + 1;
+}
+void process3(){
+	for( int i = 0; i < 1000; i++ )
+	    total = total+ 1;
+}
+void process4(){
+	for( int i = 0; i < 2000; i++ )
+	    total = total + 1;
+}
