@@ -49,10 +49,18 @@ int main()
 	total->value = 0;
 
 	/* Create processes */
-	if ( (pid1 = fork()) == 0 )
-		process1();
-	// create additional processes
-	//
+	if ( (pid1 = fork()) == 0 ){ //if we are on the child
+                printf("PID1: %d\n", pid1);
+		//process1();
+		printf("\ttotal: %d\n", *total); // Debug Only
+	}
+
+	// create additional processes - Note we make two right here. We need to not.
+	if ( (pid2 = fork()) == 0 ){ //if we are on the child
+		printf("PID2: %d\n", pid2);
+		//process2();
+		printf("\ttotal: %d\n", *total); // Debug Only
+	}
 	
 	/* Parent waits for child process to finish and print ID of each child */
 
