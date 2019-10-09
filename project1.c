@@ -45,23 +45,44 @@ int main()
 		exit(0);
 	}// end if
 
-	/* Initialize shared memory to 0 */
-	total->value = 0;
+	/* Initialize shared memory to 0 */	total->value = 0;
 
 	/* Create processes */
-	if ( (pid1 = fork()) == 0 ){ //if we are on the child
-                printf("PID1: %d\n", pid1);
-		//process1();
-		printf("\ttotal: %d\n", *total); // Debug Only
+	// Creating first child
+	int n1 = fork();
+
+	// Creating second child.
+	// First child also executes this line to create grandchild
+	int n2 = fork();
+
+	if (n1 > 0 && n2 > 0) {
+		printf("parent\n");
+		printf("%d %d \n", n1, n2);
+		printf("my id is %d \n", getpid());
+		printf("my parentid is %d \n", getppid());
+	}
+	else if (n1 == 0 && n2 > 0)
+	{
+		printf("First child\n");
+		printf("%d %d \n", n1, n2);
+		printf("my id is %d \n", getpid());
+		printf("my parentid is %d \n", getppid());
+	}
+	else if (n1 > 0 && n2 == 0)
+	{
+		printf("Second child\n");
+		printf("%d %d \n", n1, n2);
+		printf("my id is %d \n", getpid());
+		printf("my parentid is %d \n", getppid());
+	}
+	else
+	{
+		printf("Third child\n");
+		printf("%d %d \n", n1, n2);
+		printf("my id is %d \n", getpid());
+		printf("my parentid is %d \n", getppid());
 	}
 
-	// create additional processes - Note we make two right here. We need to not.
-	if ( (pid2 = fork()) == 0 ){ //if we are on the child
-		printf("PID2: %d\n", pid2);
-		//process2();
-		printf("\ttotal: %d\n", *total); // Debug Only
-	}
-	
 	/* Parent waits for child process to finish and print ID of each child */
 
 	/* Detach shared memory, use shmdt(total); */
