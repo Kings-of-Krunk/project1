@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -84,6 +85,48 @@ int main()
 	}
 
 	/* Parent waits for child process to finish and print ID of each child */
+// NEEDS WORK STILL
+	int i, stat; // check i
+	pid_t pid[5];
+	for (i = 0; i < 5; i++)
+	{
+		if ((pid[i] = fork()) == 0)
+		{
+			sleep(1);
+			exit(100 + i);
+		}
+	}//end for
+
+	// Using waitpid() and printing exit status
+	// of children.
+	for (i = 0; i < 5; i++ )
+	{
+		pid_t cpid = waitpid(pid[i], &stat, 0);
+		if (WIFEXITED(stat))
+			printf("Child %d terminated with status: %d\n",
+					cpid, WEXITSTATUS(stat));
+	}//end for
+
+	for (i = 0; i < 5; i++)
+	{
+		if ((pid[i] = fork()) == 0)
+		{
+			sleep(1);
+			exit(100 + i);
+		}
+	}//end for
+
+	// Using waitpid() and printing exit status
+	// of children.
+	for (i = 0; i < 5; i++ )
+	{
+		pid_t cpid = waitpid(pid[i], &stat, 0);
+		if (WIFEXITED(stat))
+			printf("Child %d terminated with status: %d\n",
+					cpid, WEXITSTATUS(stat));
+	}//end for
+
+
 
 	/* Detach shared memory, use shmdt(total); */
 
