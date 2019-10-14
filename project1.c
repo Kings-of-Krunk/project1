@@ -1,21 +1,10 @@
-/**
- * Cyrus Baker
- * Kay Sweebe
- * CS 474 - T. Wang
- * Project 1 - Shared Memory
- *
- * Purpose:
- *
- *
- */
-
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/types.h>
+#include <sys/wait.h> //wait
 
 /* key number */
 #define SHMKEY ((key_t) 1497) // we could make private later? IPC_PRIVATE
@@ -28,9 +17,16 @@ typedef struct
 
 shared_mem * total; 
 
-int main()
-{
-	int shmid, pid1, pid2, pid3, pid4, ID, status;
+/* helper function declarations */
+static void process1(void); 
+static void process2(void); 
+static void process3(void);
+static void process4(void);
+
+int main(void) {
+  	int shmid, pid1, pid2, pid3, pid4, status;
+
+
 	char *shmadd;
 	shmadd = (char *) 0;
 
@@ -45,69 +41,96 @@ int main()
 		exit(0);
 	}// end if
 
-	/* Initialize shared memory to 0 */	total->value = 0;
+   	/* Initialize total->value to 0 */
+  	total->value = 0;
 
-	/* Create processes */
-	// Creating first child
-	int n1 = fork();
+   	/* Create 4 processes and call increment functions for each*/
+   	if (!(pid1 = fork()))
+     		process1();
+   	else if (!(pid2 = fork()))
+      		process2();
+   	else if (!(pid3 = fork()))
+      		process3();
+   	else if (!(pid4 = fork()))
+	   	process4();
+   	/* Poll for exit of processes */
+   	else {
+		/* first completion */
+      		pid_t q1 = wait(&status);
+      		if (WIFEXITED(status)){
+      			printf("Completed = %d,", q1);
+	        	printf(" Exit status = %d\n", WEXITSTATUS(status));
+		}
+	   	/* second completion */
+      		pid_t q2 = wait(&status);
+      		if (WIFEXITED(status)){
+      			printf("Completed = %d,", q2);
+	      		printf(" Exit status = %d\n", WEXITSTATUS(status));
+		}
+		/* third completion */
+      		pid_t q3 = wait(&status);
+      		if (WIFEXITED(status)){
+      			printf("Completed = %d,", q3);
+	      		printf(" Exit status = %d\n", WEXITSTATUS(status));
+		}
+	   	/* fourth completion */
+      		pid_t q4 = wait(&status);
+		if (WIFEXITED(status)){
+			printf("Completed = %d,", q4);
+	      		printf(" Exit status = %d\n", WEXITSTATUS(status));
+		}
+      		/* Memory */
+      		if ((shmctl(shmid, IPC_RMID, (struct shmid_ds *) 0)) == -1) {
+         		perror("shmctl");
+         		exit (-1);
+      		}
 
-	// Creating second child.
-	// First child also executes this line to create grandchild
-	int n2 = fork();
+      		/* EOP */
+      		printf("\t\t  End of Program.\n");
+   	}
+   	return 0;
+} 
 
-	if (n1 > 0 && n2 > 0) {
-		printf("parent\n");
-		printf("%d %d \n", n1, n2);
-		printf("my id is %d \n", getpid());
-		printf("my parentid is %d \n", getppid());
-	}
-	else if (n1 == 0 && n2 > 0)
-	{
-		printf("First child\n");
-		printf("%d %d \n", n1, n2);
-		printf("my id is %d \n", getpid());
-		printf("my parentid is %d \n", getppid());
-	}
-	else if (n1 > 0 && n2 == 0)
-	{
-		printf("Second child\n");
-		printf("%d %d \n", n1, n2);
-		printf("my id is %d \n", getpid());
-		printf("my parentid is %d \n", getppid());
-	}
-	else
-	{
-		printf("Third child\n");
-		printf("%d %d \n", n1, n2);
-		printf("my id is %d \n", getpid());
-		printf("my parentid is %d \n", getppid());
-	}
-
-	/* Parent waits for child process to finish and print ID of each child */
-
-	/* Detach shared memory, use shmdt(total); */
-
-	/* Remove shared memory, use shmctl(shmid, IPC_RMID, NULL);
-	 * After a shared memory is removed, it no longer exists
-	 */
-
-}// end main
-
-
-void process1(){
-	for ( int i = 0; i < 1000; i++ )
-	    total = total + 1;
+static void process1(void) { 
+   int k = 0;  
+   while (k < 100000) {  
+      k++;
+      total->value = total->value + 1;  
+    }  
+    printf("From process 1 = %d\n", total->value); //<-- not quite right: could be >10000
 }
 
-void process2(){
-	for( int i = 0; i < 1000; i++ )
-	    total = total + 1;
+static void process2(void) { 
+   int k = 0;
+   while (total->value != 100000)
+      ;
+   while (k < 100000) {  
+      k++;
+      total->value = total->value + 1;  
+   }  
+   printf("From process 2 = %d\n", total->value);
 }
-void process3(){
-	for( int i = 0; i < 1000; i++ )
-	    total = total+ 1;
+
+static void process3(void) { 
+   int k = 0;  
+   while (total->value != 200000)
+      ;
+   while (k < 100000) {  
+      k++;
+      total->value = total->value + 1;  
+    }  
+    printf("From process 3 = %d\n", total->value);
 }
-void process4(){
-	for( int i = 0; i < 2000; i++ )
-	    total = total + 1;
-}
+
+static void process4(void){
+	int k = 0;
+	while(total->value !=300000)
+		;
+	while ( k < 200000 ) {
+		k++;
+      		total->value = total->value + 1;
+	}// end while
+	printf("From process 4 = %d\n", total->value);
+}// end process 4
+
+
